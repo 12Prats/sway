@@ -7,15 +7,29 @@
 font pango: Noto Sans 12
 
 ### Autostart applications
-exec thorium-browser
+exec sway-audio-idle-inhibit
 exec autotiling
-exec nm-applet
+exec_always blueman-applet 
+exec_always nm-applet
+exec zen-browser
 
 # Themes
 set $gnome-schema org.gnome.desktop.interface
 exec_always {
     gsettings set $gnome-schema gtk-theme 'Orchis-Purple-Dark'
 }
+
+# opacity
+set $opacity 0.96
+for_window [app_id="."] opacity $opacity
+for_window [app_id="firefox"] opacity 1
+for_window [app_id="thorium"] opacity 1
+for_window [app_id="libreoffice-calc"] opacity 1
+for_window [app_id="libreoffice-writer"] opacity 1
+for_window [app_id="mpv"] opacity 1
+for_window [app_id="sioyek"] opacity 1
+for_window [app_id="brave"] opacity 1
+for_window [app_id="zen"] opacity 1
 
 ### Variables
 #
@@ -34,7 +48,8 @@ set $menu wofi
 ### Output configuration
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg ~/Pictures/backgrounds/fish.png fill
+output * bg ~/Pictures/backgrounds/boat.jpg fill
+
 #
 # Example configuration:
 #
@@ -48,15 +63,20 @@ input type:keyboard xkb_numlock enabled
 ## border
 default_border none
 
+## Floating mode
+for_window [app_id="mpv"] floating enable , resize set 1280 720
+for_window [app_id="blueman-manager"] floating enable, resize set 640 480
+for_window [app_id="galculator"] floating enable, resize set 360 480
+
 ### Idle configuration
 #
 # Example configuration:
 #
 
 exec swayidle -w \
-    timeout 300 'swaylock -f -c 36332a' \
-    timeout 480 'systemctl suspend-then-hibernate' \
-    before-sleep 'swaylock -f -c 36332a'
+      timeout 300 'swaylock -f -c 36332a' \
+      timeout 480 'systemctl suspend-then-hibernate' \
+      before-sleep 'swaylock -f -c 36332a'
 
 # This will lock your screen after 300 seconds of inactivity, then turn off
 # your displays after another 300 seconds, and turn your screens back on when
@@ -69,18 +89,17 @@ exec swayidle -w \
    input "1267:12448:ELAN0709:00_04F3:30A0_Touchpad" {
        dwt enabled
        tap enabled
+       drag_lock disabled
        natural_scroll enabled
+       scroll_factor 0.25
        middle_emulation enabled
        accel_profile "flat"
-       pointer_accel 0.6
-
+       pointer_accel 0.57
    }
 
 # Gestures
 bindgesture swipe:right workspace prev
 bindgesture swipe:left workspace next
-
-
 
 #
 # You can get the names of your inputs by running: swaymsg -t get_inputs
@@ -139,6 +158,9 @@ bindgesture swipe:left workspace next
 # Launch apps
     bindsym $mod+r exec wofi --show drun
     bindsym $mod+Shift+b exec blueman-manager
+    bindsym $mod+y exec thunar
+    bindsym $mod+Alt+l exec swaylock -c 36332a
+    bindsym $mod+t exec qbittorrent
 #
 # Workspaces:
 #
@@ -236,17 +258,24 @@ bindsym $mod+Shift+r mode "resize"
     bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
     bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
     # Special keys to adjust brightness via brightnessctl
-    bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
-    bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+    bindsym --locked XF86MonBrightnessDown exec brightnessctl set 3%-
+    bindsym --locked XF86MonBrightnessUp exec brightnessctl set 3%+
+
+# Media control:
+
+    bindsym XF86AudioPlay exec playerctl play-pause
+    bindsym XF86AudioNext exec playerctl next
+    bindsym XF86AudioPrev exec playerctl previous
+    bindsym XF86AudioStop exec playerctl stop
+
+
 #
 # Screenshots:
 #
 
-    bindsym Print exec grimshot save screen ~/Pictures/screenshots/$(date +'%Y-%m-%d_%H-%M-%S').png
-    bindsym $mod+Shift+Print exec grimshot save area - | wl-copy
-    bindsym $mod+Print exec grimshot save area ~/Pictures/screenshots/$(date +'%Y-%m-%d_%H-%M-%S').png
-
-
+    bindsym Print exec grimshot save screen ~/Pictures/screenshots/$(date +'%Y-%m-%d_%H-%M-%S').png && dunstify -u normal 'screenshot saved to Pictures/screenshots'
+    bindsym $mod+Shift+Print exec grimshot save area - | wl-copy && dunstify -u normal 'screenshot copied to clipboard'
+    bindsym $mod+Print exec grimshot save area ~/Pictures/screenshots/$(date +'%Y-%m-%d_%H-%M-%S').png && dunstify -u normal 'screenshot saved to Pictures/screenshots'
 
 #
 # Status Bar:
